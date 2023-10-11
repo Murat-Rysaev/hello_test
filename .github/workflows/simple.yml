@@ -1,0 +1,61 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: simple
+# control when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  # Запускает рабочий процесс по событиям push-запроса или pull-pull request, но только для основной ветви
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
+
+  # Allows you to run this workflow manually from from the Action tab
+  # Позволяет вам запустить этот рабочий процесс вручную с вкладки Действие
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in paralell 
+# Запуск рабочего процесса состоит из одного или нескольких заданий, которые могут выполняться последовательно или параллельно
+jobs:
+# This workflow contains a single job called "build"
+# Этот рабочий процесс содержит одно задание под названием "сборка".
+  build:
+# The type of runner that the job will run on
+# Тип бегуна, на котором будет выполняться задание
+    runs-on: 
+    - self-hosted
+    - label-1
+    strategy:
+      # fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+        
+# Step represent a sequence of tasks that will be executed as part of the job
+# Шаг представляет собой последовательность задач, которые будут выполняться как часть задания
+    steps:
+
+    # Check-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    # Проверьте свой репозиторий в разделе $GITHUB_WORKSPACE, чтобы ваша работа могла получить к нему доступ
+    - uses: actions/checkout@v3
+
+    # Runs a single command using the  runners shell
+    # Запускает одну команду с помощью командной оболочки runners
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest
