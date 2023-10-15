@@ -1,19 +1,19 @@
-import sklearn
-import numpy as np
-from sklearn import datasets
-from sklearn.datasets import load_iris
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+import numpy as np
+import os
 
-data = load_iris()
+seed = 42
+# Generate data
+X, y = make_classification(n_samples=1000, random_state=seed)
 
-X = data['data']
-y = data['target']
+# Make a train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-clf = RandomForestClassifier(max_depth=2, random_state=0)
-clf.fit(X_train, y_train)
-y_pred = clf.predict(X_test)
-f = open('predict.txt', 'w')
-f.write(y_pred.__repr__())
-f.close()
+# Save it
+if not os.path.isdir("data"):
+    os.mkdir("data")
+np.savetxt("data/train_features.csv", X_train)
+np.savetxt("data/test_features.csv", X_test)
+np.savetxt("data/train_labels.csv", y_train)
+np.savetxt("data/test_labels.csv", y_test)
